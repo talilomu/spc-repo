@@ -1,4 +1,3 @@
-import sys
 import glob
 import tabula
 import pandas as pd
@@ -6,37 +5,90 @@ import openpyxl
 from datetime import datetime
 from pdfminer.high_level import extract_text
 
-files = glob.glob("D:\\Dossier Dev\\SPC\\work\\*.pdf")
-
 class ExtractPDF:
     def __init__(self):
-        self.path_xl = "D:\\Dossier Dev\\SPC\\work\\exemple base de données.xlsx"
+        self.path_xl = input("Veuillez renseigner le chemin du fichier Excel...\n")
         self.excel = pd.read_excel(self.path_xl, sheet_name="Feuil1", header=4)
         self.wb = openpyxl.load_workbook(self.path_xl)
         self.feuil = self.wb['Feuil1']
         self.dict_i = {
             'Aspect': ['X', 2],
+            'Odeur': ['X', 2],
             'Conductivité à 25 °C': ['AA', 2],
             #'Température de mesure de la conductivité (correction par compensation)': ['', 2],
             'Couleur par Méth. comparative visuelle': ['Y', 2],
+            'Couleur': ['Y', 2],
             'pH': ['Z', 2],
             #'Température de mesurage du pH': ['', 2],
             'Turbidité par néphélométrie': ['AB', 2],
+            'Turbidité': ['AB', 2],
             'Dénombrement  des micro organismes revivifiables à 37°C': ['AD', 2],
+            'Micro-organismes revivifiables 36°C / 48 h': ['AD', 2],
             'Recherche et dénombrement  des bactéries coliformes': ['AE', 2],
+            'Coliformes': ['AE', 2],
             'Recherche et dénombrement des Escherichia Coli': ['AF', 2],
+            'Escherichia coli': ['AF', 2],
             #'Recherche et dénombrement des spores de micro-organismes'
             #'anaérobies sulfito-réducteurs (Clostridia)': ['', 2],
-            #'Dénombrement des enterocoques': ['', 2],
+            'Dénombrement des enterocoques': ['AG', 2],
+            'Entérocoques': ['AG', 2],
             'Aluminium (sous-traitance)': ['AS', 2],
+            'Aluminium (Al)': ['AS', 2],
             'Fer (sous-traitance)': ['AZ', 2],
+            'Fer (Fe)': ['AZ', 2],
             'Plomb (sous-traitance)': ['CK', 2],
+            'Plomb (Pb)': ['CK', 2],
             'Zinc (sous-traitance)': ['BB', 2],
+            'Zinc (Zn)': ['BB', 2],
             'Nitrates par chromatographie ionique': ['AU', 2],
+            'Nitrates (NO3-)': ['AU', 2],
             'Nitrites par chromatographie ionique': ['AV', 2],
+            'Nitrites (NO2-)': ['AV', 2],
             #'Matières en suspension': ['', 2],
             'Ammoniums par absorption moléculaire': ['AW', 2],
-            'Chlore libre mesuré par le client': ['AC', 2]
+            'Ammonium (NH4+)': ['AW', 2],
+            'Chlore libre mesuré par le client': ['AC', 2],
+            'Chlore Libre (Cl2)': ['AC', 2],
+            'Température de prélèvement / collecte': ['O', 2],
+            'Température de réception': ['R', 2],
+            #'Condition de stockage': ['', 1],
+            'Hydrogène sulfuré': ['AY', 2],
+            #'Température de mesure pour le pH': ['', 2]
+            'Oxygène dissous': ['BH', 2],
+            'Résidus secs à 180°C': ['AT', 2],
+            'Anhydride Carbonique': ['BL', 2],
+            'Carbonates (CaCO3)': ['BJ', 2],
+            'Hydrogénocarbonates': ['BK', 2],
+            'Oxydabilité au KMnO4': ['AX', 2],
+            'Phosphore Total (P2O5)': ['BD', 2],
+            'Fluorures (F-)': ['BE', 2],
+            'Chlorures (Cl-)': ['AN', 2],
+            'Sulfates (SO42-)': ['AP', 2],
+            'Silice (SiO2)': ['BF', 2],
+            'Calcium (Ca)': ['BG', 2],
+            'Magnésium (Mg)': ['AQ', 2],
+            'Sodium (Na)': ['AO', 2],
+            'Potassium (K)': ['AR', 2],
+            'Cuivre (Cu)': ['BA', 2],
+            'Manganèse (Mn)': ['BC', 2],
+            'Cadmium (Cd)': ['CJ', 2],
+            'Benzo (a) pyrène': ['CO', 2],
+            'Benzo (b) fluoranthène': ['CM', 2],
+            'Benzo (g,h,i) pérylène': ['CP', 2],
+            'Benzo (k) fluoranthène': ['CN', 2],
+            'Fluoranthène': ['CL', 2],
+            'Indéno (1,2,3-cd) pyrène': ['CQ', 2],
+            'Somme des 6 HPA': ['CR', 2],
+            'Naphtalène': ['CS', 2],
+            'Acénaphtène': ['CU', 2],
+            'Acénaphtylène': ['CT', 2],
+            'Anthracène': ['CX', 2],
+            'Benzo (a) anthracène': ['CZ', 2],
+            'Chrysène': ['DA', 2],
+            'Dibenzo (a,h) anthracène': ['DB', 2],
+            'Fluorène': ['CV', 2],
+            'Pyrène': ['CY', 2],
+            'Phénanthrène': ['CW', 2]
         }
 
     def extrac_rapport(self, f):
@@ -149,10 +201,9 @@ class ExtractPDF:
                 if (len(dt.columns) >= 5):
                     if(num_unnamed < 2):
                         header_values = dt.columns.values.tolist()
-                        print(header_values[0])
-                        print(header_values[1])
-                        print(header_values[2])
-                        print(header_values[3])
+                        for index, value in enumerate(self.dict_i):
+                            if(header_values[0] == value):
+                                self.feuil[self.dict_i[value][0] + str(new_r)] = header_values[self.dict_i[value][1]]
                     for i, row in dt.iterrows():
                         for index, value in enumerate(self.dict_i):
                             if(row.iloc[0] == value):
@@ -227,15 +278,26 @@ class ExtractPDF:
                 if(len(dt.columns) == 3):
                     if (num_unnamed < 2):
                         header_values = dt.columns.values.tolist()
-                        print(header_values[0], header_values[1])
+                        for index, value in enumerate(self.dict_i):
+                            if(header_values[0] == value):
+                                self.feuil[self.dict_i[value][0] + str(new_r)] = header_values[self.dict_i[value][1]]
                     for i, row in dt.iterrows():
                         print(row.iloc[0], row.iloc[2])
+                        for index, value in enumerate(self.dict_i):
+                            if (row.iloc[0] == value):
+                                self.feuil[self.dict_i[value][0] + str(new_r)] = row.iloc[self.dict_i[value][1]]
                 elif(len(dt.columns) == 6):
                     if (num_unnamed < 2):
                         header_values = dt.columns.values.tolist()
-                        print(header_values[0], header_values[1])
+                        for index, value in enumerate(self.dict_i):
+                            if (header_values[0] == value):
+                                self.feuil[self.dict_i[value][0] + str(new_r)] = header_values[self.dict_i[value][1]]
                     for i, row in dt.iterrows():
                         print(row.iloc[0], row.iloc[2])
+                        for index, value in enumerate(self.dict_i):
+                            if(row.iloc[0] == value):
+                                self.feuil[self.dict_i[value][0] + str(new_r)] = row.iloc[self.dict_i[value][1]]
+
 
         self.wb.save(self.path_xl)
         self.wb.close()
@@ -243,14 +305,7 @@ class ExtractPDF:
 
 if __name__ == '__main__':
 
+    files = glob.glob(input("Veuillez indiquer le chemin absolu du dossier contenant les analyses...\n") + "\*.pdf")
     start = ExtractPDF()
     for f in files:
        start.extrac_rapport(f)
-
-
-    #text1 = extract_text(files[2])
-    #text2 = extract_text(files[3])
-    #print(text1)
-    #print("==================================================")
-    #print(text2)
-#
